@@ -15,7 +15,7 @@
             Pessoa: {{ person.name }} | Espécie: {{ person.species }}
           </span>
           <button
-            @click="editPerson(person.id)"
+            @click="editPerson(person)"
             data-test="edit-person"
           >
             Editar Pessoas
@@ -95,8 +95,11 @@ export default {
         this.persons = response.data.results;
       }
     },
-    async editPerson(personId) {
-      const response = await putPerson(personId);
+    async editPerson(person) {
+      const response = await putPerson(person.id, {name: person.name, species: person.species});
+      if(response.status === 200){
+        await this.requestPersons();
+      }
 
     },
     async addPerson(person) {

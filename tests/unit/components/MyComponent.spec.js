@@ -1,6 +1,6 @@
 import { flushPromises, shallowMount } from '@vue/test-utils';
 import MyComponent from '../../../src/components/MyComponent';
-import { getPersons, postPerson, deletePerson, deleteAll } from '../../../src/services/PersonService';
+import { getPersons, postPerson, deletePerson, deleteAll, putPerson } from '../../../src/services/PersonService';
 
 jest.mock('../../../src/services/PersonService');
 
@@ -53,7 +53,7 @@ describe('MyComponent.vue', () => {
     }
     getPersons.mockResolvedValueOnce(persons);
 
-    let personagem = 'Personagem: Toin | Espécie: Alien';
+    let personagem = 'Pessoa: Toin | Espécie: Alien';
     const wrapper = shallowMount(MyComponent);
     await wrapper.get('[data-test="requestPersons"]').trigger('click');
     await flushPromises();
@@ -169,7 +169,46 @@ describe('MyComponent.vue', () => {
     expect(wrapper.vm.persons).toHaveLength(0);
   })
 
-  
+  test('Update a person', async ()=>{
+    const mockResponseUpdatePerson = {status: 200};
+    const mockPerson = {
+      id: 1,
+      name: 'Pedro',
+      species: 'Humano'
+    }
+    const mockResponseGetAllPerson = {
+      status: 200,
+      data: {
+        results: [mockPerson]
+      }
+    }
+    putPerson.mockResolvedValueOnce(mockResponseUpdatePerson);
+    getPersons.mockResolvedValueOnce(mockResponseGetAllPerson);
+
+    const wrapper = shallowMount(MyComponent, {
+      data(){
+        return {
+          persons: [
+            {
+              id: 1,
+              name: 'Cátia',
+              species: 'Alien'
+            }
+          ]
+        }
+      }
+    })
+    expect(wrapper.vm.persons[0].name).toEqual('Cátia');
+    expect(wrapper.vm.persons[0].species).toEqual('Alien');
+    const person = wrapper.findAll('.iten-person').at(0);
+    wrapper.get('[data-test="name-person"]').setValue(mockPerson.name);
+    wrapper.get('[data-test="specie-person"]').setValue(mockPerson.species);
+    await person.get('[data-test="edit-person"]').trigger('click');
+    await flushPromises();
+    expect(wrapper.vm.persons[0].name).toEqual(mockPerson.name);
+    expect(wrapper.vm.persons[0].species).toEqual(mockPerson.species);
+
+  })
 })
 
 
