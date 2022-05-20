@@ -7,7 +7,7 @@ jest.mock('../../../src/services/PersonService');
 
 describe('MyComponent.vue', () => {
   test('Checando se tem registros de pessoas', async () => {
-    const mockPersons = {
+    const mockResponseGetAllPersons = {
       status: 200,
       data: {
         results: [
@@ -22,7 +22,7 @@ describe('MyComponent.vue', () => {
         ]
       }
     }
-    getPersons.mockResolvedValueOnce(mockPersons);
+    getPersons.mockResolvedValueOnce(mockResponseGetAllPersons);
 
     const wrapper = shallowMount(MyComponent);
     await wrapper.get('[data-test="requestPersons"]').trigger('click');
@@ -32,7 +32,7 @@ describe('MyComponent.vue', () => {
   })
 
   test('Verificando personagme na posição 2', async () => {
-    const persons = {
+    const mockResponseGetAllPersons = {
       status: 200,
       data: {
         results: [
@@ -51,31 +51,31 @@ describe('MyComponent.vue', () => {
         ]
       }
     }
-    getPersons.mockResolvedValueOnce(persons);
+    getPersons.mockResolvedValueOnce(mockResponseGetAllPersons);
 
-    let personagem = 'Pessoa: Toin | Espécie: Alien';
+    let person = 'Pessoa: Toin | Espécie: Alien';
     const wrapper = shallowMount(MyComponent);
     await wrapper.get('[data-test="requestPersons"]').trigger('click');
     await flushPromises();
     const result = wrapper.findAll('[data-test="person"]').at(2);
-    expect(result.text()).toContain(personagem);
+    expect(result.text()).toContain(person);
   })
 
   test('Adding a person', async () => {
-    const mockAdd = {status: 201};
-    const person = {
+    const mockResponseAddPerson = {status: 201};
+    const mockPerson = {
       id: 1,
       name: 'Pedro',
       species: 'Humano'
     }
-    const mockData = {
+    const mockResponseGetAllPersons = {
       status: 200,
       data: {
-        results: [person]
+        results: [mockPerson]
       }
     }
-    postPerson.mockResolvedValueOnce(mockAdd);
-    getPersons.mockResolvedValueOnce(mockData);
+    postPerson.mockResolvedValueOnce(mockResponseAddPerson);
+    getPersons.mockResolvedValueOnce(mockResponseGetAllPersons);
 
     const wrapper = shallowMount(MyComponent, {
       data() {
@@ -85,17 +85,17 @@ describe('MyComponent.vue', () => {
       }
     });
     expect(wrapper.vm.persons).toHaveLength(0);
-    wrapper.get('[data-test="name-person"]').setValue(person.name);
-    wrapper.get('[data-test="specie-person"]').setValue(person.species);
+    wrapper.get('[data-test="name-person"]').setValue(mockPerson.name);
+    wrapper.get('[data-test="specie-person"]').setValue(mockPerson.species);
     await wrapper.find('.form-add-person').trigger('submit');
     await flushPromises();
     expect(wrapper.vm.persons).toHaveLength(1);
-    expect(wrapper.vm.persons[0].name).toEqual(person.name);
+    expect(wrapper.vm.persons[0].name).toEqual(mockPerson.name);
   })
 
   test('Delete a person', async () => {
-    const mockDelete = { status: 204 };
-    const mockData = {
+    const mockResponseDeletePerson = { status: 204 };
+    const mockResponseGetAllPersons = {
       status: 200,
       data: {
         results: [
@@ -107,8 +107,8 @@ describe('MyComponent.vue', () => {
         ]
       }
     }
-    deletePerson.mockResolvedValueOnce(mockDelete);
-    getPersons.mockResolvedValueOnce(mockData);
+    deletePerson.mockResolvedValueOnce(mockResponseDeletePerson);
+    getPersons.mockResolvedValueOnce(mockResponseGetAllPersons);
 
     const wrapper = shallowMount(MyComponent, {
       data() {
@@ -135,15 +135,15 @@ describe('MyComponent.vue', () => {
   })
 
   test('Delete all persons', async () => {
-    const mockDeleteAll = { status: 204 };
-    const mockData = {
+    const mockResponseDeleteAllPersons = { status: 204 };
+    const mockResponseGetAllPersons = {
       status: 200,
       data: {
         results: []
       }
     }
-    deleteAll.mockResolvedValueOnce(mockDeleteAll);
-    getPersons.mockResolvedValueOnce(mockData);
+    deleteAll.mockResolvedValueOnce(mockResponseDeleteAllPersons);
+    getPersons.mockResolvedValueOnce(mockResponseGetAllPersons);
 
     const wrapper = shallowMount(MyComponent, {
       data() {
@@ -176,14 +176,14 @@ describe('MyComponent.vue', () => {
       name: 'Pedro',
       species: 'Humano'
     }
-    const mockResponseGetAllPerson = {
+    const mockResponseGetAllPersons = {
       status: 200,
       data: {
         results: [mockPerson]
       }
     }
     putPerson.mockResolvedValueOnce(mockResponseUpdatePerson);
-    getPersons.mockResolvedValueOnce(mockResponseGetAllPerson);
+    getPersons.mockResolvedValueOnce(mockResponseGetAllPersons);
 
     const wrapper = shallowMount(MyComponent, {
       data(){
