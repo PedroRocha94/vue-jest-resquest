@@ -1,12 +1,11 @@
 <template>
   <div class="my-component">
     <h2>Resposta da requisição</h2>
-    <div>
+    <div v-if="isValid">
       <ul>
         <li 
           v-for="(person, index) in persons" 
-          :key="index"
-          class="iten-person"
+          :key="index" class="iten-person"
         >
           <span 
             data-test="person" 
@@ -14,12 +13,14 @@
           >
             Pessoa: {{ person.name }} | Espécie: {{ person.species }}
           </span>
-          <button
-            @click="editPerson(person)"
+
+          <button 
+            @click="editPerson(person)" 
             data-test="edit-person"
           >
             Editar Pessoas
           </button>
+
           <button
             @click="removePerson(person.id)"
             data-test="remove-person"
@@ -29,7 +30,17 @@
           </button>
         </li>
       </ul>
+
+      
     </div>
+
+    <div 
+      v-else
+      data-test="catch-request"
+    >
+      <p>{{ messageError }}</p>
+    </div>
+
     <div>
       <button 
         @click="requestPersons" 
@@ -37,13 +48,15 @@
       >
         Ver Pessoas
       </button>
-      <button
-        @click="deleteAll"
+
+      <button 
+        @click="deleteAll" 
         data-test="deletAll"
       >
         Deletar Todos
       </button>
     </div>
+
     <form
       @submit.prevent="addPerson(person)"
       data-test="form-add-person"
@@ -77,7 +90,7 @@ import {
   postPerson,
   deletePerson,
   deleteAll,
-  putPerson
+  putPerson,
 } from "../services/PersonService";
 
 export default {
@@ -86,42 +99,49 @@ export default {
     return {
       persons: [],
       person: {},
+      idValid: true,
+      messageError: ''
     };
   },
   methods: {
     async requestPersons() {
       const response = await getPersons();
-      if(response.status === 200){
+      if (response.status === 200) {
         this.persons = response.data.results;
+      }else if(response.status === 404){
+        this.messageError = response.data.error;
+        this.isValid = false;
       }
     },
     async editPerson(person) {
-      const response = await putPerson(person.id, {name: person.name, species: person.species});
-      if(response.status === 200){
+      const response = await putPerson(person.id, {
+        name: person.name,
+        species: person.species,
+      });
+      if (response.status === 200) {
         await this.requestPersons();
       }
-
     },
     async addPerson(person) {
       const response = await postPerson(person);
-      if(response.status === 201){
+      if (response.status === 201) {
         await this.requestPersons();
       }
     },
     async removePerson(personId) {
       const response = await deletePerson(personId);
-      if(response.status === 204){
+      if (response.status === 204) {
         // let index = this.personagens.findIndex(personagem => personagem.id === personagemId.id);
         // this.personagens.splice(index,1);
         await this.requestPersons();
       }
     },
-    async deleteAll(){
+    async deleteAll() {
       const response = await deleteAll();
-      if(response.status === 204){
+      if (response.status === 204) {
         await this.requestPersons();
       }
-    }
+    },
   },
 };
 </script>
