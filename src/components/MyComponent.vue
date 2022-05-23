@@ -1,7 +1,7 @@
 <template>
   <div class="my-component">
     <h2>Resposta da requisição</h2>
-    <div v-if="isValid">
+    <div>
       <ul>
         <li 
           v-for="(person, index) in persons" 
@@ -34,8 +34,7 @@
       
     </div>
 
-    <div 
-      v-else
+    <div v-show="isValid"
       data-test="catch-request"
     >
       <p>{{ messageError }}</p>
@@ -99,7 +98,7 @@ export default {
     return {
       persons: [],
       person: {},
-      idValid: true,
+      isValid: false,
       messageError: ''
     };
   },
@@ -108,9 +107,6 @@ export default {
       const response = await getPersons();
       if (response.status === 200) {
         this.persons = response.data.results;
-      }else if(response.status === 404){
-        this.messageError = response.data.error;
-        this.isValid = false;
       }
     },
     async editPerson(person) {
