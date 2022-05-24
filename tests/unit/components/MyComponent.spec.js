@@ -209,6 +209,29 @@ describe('MyComponent.vue', () => {
     expect(wrapper.vm.persons[0].species).toEqual(mockPerson.species);
 
   })
+
+  test('Simulating the requests catch response', async ()=>{
+    const mockResponseGetCatch = {
+      status: 404,
+      error: 'There is nothing here.'
+    };
+    getPersons.mockResolvedValueOnce(mockResponseGetCatch);
+
+    const wrapper = shallowMount(MyComponent, {
+      data(){
+        return{
+          messageError: {}
+        }
+      }
+    })
+    expect(wrapper.vm.isValid).toBe(false);
+    expect(wrapper.vm.messageError).toEqual({});
+    await wrapper.get('[data-test="requestPersons"]').trigger('click');
+    await flushPromises();
+    expect(wrapper.vm.messageError).toEqual(mockResponseGetCatch.error);
+
+
+  })
 })
 
 

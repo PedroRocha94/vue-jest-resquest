@@ -34,10 +34,11 @@
       
     </div>
 
-    <div v-show="isValid"
-      data-test="catch-request"
+    <div 
+      v-show="isValid"
+      data-test="error-request"
     >
-      <p>{{ messageError }}</p>
+      <p>{{ messageError.error }}</p>
     </div>
 
     <div>
@@ -107,6 +108,9 @@ export default {
       const response = await getPersons();
       if (response.status === 200) {
         this.persons = response.data.results;
+      }else if(response.status === 404){
+        this.messageError = response.data;
+        this.isValid = true;
       }
     },
     async editPerson(person) {
@@ -127,8 +131,6 @@ export default {
     async removePerson(personId) {
       const response = await deletePerson(personId);
       if (response.status === 204) {
-        // let index = this.personagens.findIndex(personagem => personagem.id === personagemId.id);
-        // this.personagens.splice(index,1);
         await this.requestPersons();
       }
     },
