@@ -34,13 +34,6 @@
       
     </div>
 
-    <div 
-      v-show="isValid"
-      data-test="error-request"
-    >
-      <p>{{ messageError.error }}</p>
-    </div>
-
     <div>
       <button 
         @click="requestPersons" 
@@ -99,45 +92,73 @@ export default {
     return {
       persons: [],
       person: {},
-      isValid: false,
-      messageError: ''
     };
   },
   methods: {
     async requestPersons() {
-      const response = await getPersons();
-      if (response.status === 200) {
-        this.persons = response.data.results;
-      }else if(response.status === 404){
-        this.messageError = response.data;
-        this.isValid = true;
+      try{
+        const response = await getPersons();
+        if(response){
+          if (response.status === 200) {
+           this.persons = response.data.results;
+          }
+        }
+      }
+      catch(error){
+        if(error.status === 404){
+          this.persons = [];
+        }
       }
     },
     async editPerson(person) {
-      const response = await putPerson(person.id, {
-        name: person.name,
-        species: person.species,
-      });
-      if (response.status === 200) {
-        await this.requestPersons();
+      try{
+        const response = await putPerson(person.id, {
+          name: person.name,
+          species: person.species,
+        });
+        if(response){
+          if (response.status === 200) {
+            await this.requestPersons();
+        }
+        }
+      }
+      catch(error){
+        
       }
     },
     async addPerson(person) {
-      const response = await postPerson(person);
-      if (response.status === 201) {
-        await this.requestPersons();
+      try{
+        const response = await postPerson(person);
+        if (response.status === 201) {
+          await this.requestPersons();
+        }else if(response.status === 404){
+          console.log(response);
+        }
+      }
+      catch(e){
+
       }
     },
     async removePerson(personId) {
-      const response = await deletePerson(personId);
-      if (response.status === 204) {
-        await this.requestPersons();
+      try{
+        const response = await deletePerson(personId);
+        if (response.status === 204) {
+          await this.requestPersons();
+        }
+      }
+      catch(e){
+
       }
     },
     async deleteAll() {
-      const response = await deleteAll();
-      if (response.status === 204) {
-        await this.requestPersons();
+      try{
+        const response = await deleteAll();
+        if (response.status === 204) {
+          await this.requestPersons();
+        }
+      }
+      catch(e){
+
       }
     },
   },

@@ -4,9 +4,8 @@ import { getPersons, postPerson, deletePerson, deleteAll, putPerson } from '../.
 
 jest.mock('../../../src/services/PersonService');
 
-
 describe('MyComponent.vue', () => {
-  test('Checando se tem registros de pessoas', async () => {
+  test('Testing receiving data', async () => {
     const mockResponseGetAllPersons = {
       status: 200,
       data: {
@@ -31,7 +30,7 @@ describe('MyComponent.vue', () => {
     expect(result).toHaveLength(2);
   })
 
-  test('Verificando personagme na posição 2', async () => {
+  test('Checking person in position 2', async () => {
     const mockResponseGetAllPersons = {
       status: 200,
       data: {
@@ -210,28 +209,5 @@ describe('MyComponent.vue', () => {
 
   })
 
-  test('Simulating the requests catch response', async ()=>{
-    const mockResponseGetCatch = {
-      status: 404,
-      error: 'There is nothing here.'
-    };
-    getPersons.mockResolvedValueOnce(mockResponseGetCatch);
-
-    const wrapper = shallowMount(MyComponent, {
-      data(){
-        return{
-          messageError: {}
-        }
-      }
-    })
-    expect(wrapper.vm.isValid).toBe(false);
-    expect(wrapper.vm.messageError).toEqual({});
-    await wrapper.get('[data-test="requestPersons"]').trigger('click');
-    await flushPromises();
-    expect(wrapper.vm.messageError).toEqual(mockResponseGetCatch.error);
-
-
-  })
 })
-
 
