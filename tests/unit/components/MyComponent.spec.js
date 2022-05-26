@@ -319,4 +319,54 @@ describe('MyComponent.vue', () => {
 
   })
 
+  test('Error update a person', async ()=>{
+    const mockError = {
+      status: 400,
+      data: {
+        error: 'Não foi possível editar esta pessoa.'
+      }
+    }
+    const mockPerson = {
+      id: 1,
+      name: 'Pedro',
+      species: 'Humano'
+    }
+    const mockResponseGetPersons = {
+      status: 200,
+      data: {
+        results: [
+          {
+            id: 1,
+            name: 'Cátia',
+            species: 'Alien'
+          }
+        ]
+      }
+    }
+    putPerson.mockRejectedValueOnce(mockError);
+    getPersons.mockResolvedValueOnce(mockResponseGetPersons);
+
+    const wrapper = shallowMount(MyComponent, {
+      data() {
+        return {
+          persons: [
+            {
+              id: 1,
+              name: 'Cátia',
+              species: 'Alien'
+            }
+          ]
+        }
+      }
+    })
+    expect(wrapper.vm.persons[0].name).toEqual('Cátia');
+    expect(wrapper.vm.persons[0].species).toEqual('Alien');
+    const person = wrapper.findAll('.iten-person').at(0);
+    wrapper.get('[data-test="name-person"]').setValue();
+    wrapper.get('[data-test="specie-person"]').setValue(mockPerson.species);
+    await person.get('[data-test="edit-person"]').trigger('click');
+    await flushPromises();
+    expect(wrapper.vm.persons[0].name).toEqual(mockResponseGetPersons.data.results[0].name);
+    expect(wrapper.vm.persons[0].species).toEqual(mockResponseGetPersons.data.results[0].species);
+  })
 })
