@@ -61,7 +61,7 @@ describe('MyComponent.vue', () => {
   })
 
   test('Adding a person', async () => {
-    const mockResponseAddPerson = {status: 201};
+    const mockResponseAddPerson = { status: 201 };
     const mockPerson = {
       id: 1,
       name: 'Pedro',
@@ -168,8 +168,8 @@ describe('MyComponent.vue', () => {
     expect(wrapper.vm.persons).toHaveLength(0);
   })
 
-  test('Update a person', async ()=>{
-    const mockResponseUpdatePerson = {status: 200};
+  test('Update a person', async () => {
+    const mockResponseUpdatePerson = { status: 200 };
     const mockPerson = {
       id: 1,
       name: 'Pedro',
@@ -185,7 +185,7 @@ describe('MyComponent.vue', () => {
     getPersons.mockResolvedValueOnce(mockResponseGetAllPersons);
 
     const wrapper = shallowMount(MyComponent, {
-      data(){
+      data() {
         return {
           persons: [
             {
@@ -209,5 +209,114 @@ describe('MyComponent.vue', () => {
 
   })
 
-})
+  test('Get requests catch response', async () => {
+    const mockError = {
+      status: 404,
+      data: {
+        error: 'There is nothing here.'
+      }
+    };
+    getPersons.mockRejectedValueOnce(mockError)
+    const wrapper = shallowMount(MyComponent, {
+      data() {
+        return {
+          persons: []
+        }
+      }
+    })
+    expect(wrapper.vm.persons.length).toEqual(0);
+    await wrapper.get('[data-test="requestPersons"]').trigger('click');
+    await flushPromises();
+    expect(wrapper.vm.persons.length).toEqual(0);
+  })
 
+  test('Error adding a person', async ()=>{
+    const mockError = {
+      status: 400,
+      data: {
+        error: 'Um ou mais campos estão vazios.'
+      }
+    }
+    const mockPerson = {
+      id: 1,
+      name: '',
+      species: 'Humano'
+    }
+    const mockRejectedPostPerson = {
+      status: 200,
+      data: {
+        results: []
+      }
+    }
+    postPerson.mockRejectedValueOnce(mockError);
+    getPersons.mockResolvedValueOnce(mockRejectedPostPerson);
+
+    const wrapper = shallowMount(MyComponent, {
+      data(){
+        return {
+          persons: []
+        }
+      }
+    })
+    expect(wrapper.vm.persons).toHaveLength(0);
+    wrapper.get('[data-test="name-person"]').setValue(mockPerson.name);
+    wrapper.get('[data-test="specie-person"]').setValue(mockPerson.species);
+    await wrapper.find('.form-add-person').trigger('submit');
+    await flushPromises();
+    expect(wrapper.vm.persons).toHaveLength(0);
+  })
+
+  test('Error delete a person', async ()=>{
+    const mockError = {
+      status: 400,
+      data: {
+        error: 'Não foi possível remover esta pessoa.'
+      }
+    }
+    const mockResponseGetPersons = {
+      status: 200,
+      data: {
+        results: [
+          {
+            id: 1,
+            name: 'Pedro',
+            species: 'Humano'
+          },
+          {
+            id: 2,
+            name: 'Cátia',
+            species: 'Humano'
+          }
+        ]
+      }
+    }
+    deletePerson.mockRejectedValueOnce(mockError);
+    getPersons.mockResolvedValueOnce(mockResponseGetPersons);
+
+    const wrapper = shallowMount(MyComponent, {
+      data(){
+        return{
+          persons: [
+            {
+              id: 1,
+              name: 'Pedro',
+              species: 'Humano'
+            },
+            {
+              id: 2,
+              name: 'Cátia',
+              species: 'Humano'
+            }
+          ]
+        }
+      }
+    })
+    expect(wrapper.vm.persons).toHaveLength(2);
+    const person = wrapper.findAll('.iten-person').at(1);
+    person.get('[data-test="remove-person"]').trigger('click');
+    await flushPromises();
+    expect(wrapper.vm.persons).toHaveLength(2);
+
+  })
+
+})

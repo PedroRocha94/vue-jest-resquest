@@ -30,8 +30,6 @@
           </button>
         </li>
       </ul>
-
-      
     </div>
 
     <div>
@@ -96,69 +94,83 @@ export default {
   },
   methods: {
     async requestPersons() {
-      try{
+      try {
         const response = await getPersons();
-        if(response){
+        if (response) {
           if (response.status === 200) {
-           this.persons = response.data.results;
+            this.persons = response.data.results;
           }
         }
-      }
-      catch(error){
-        if(error.status === 404){
+      } 
+      catch (error) {
+        if (error.status === 404) {
           this.persons = [];
         }
       }
     },
     async editPerson(person) {
-      try{
-        const response = await putPerson(person.id, {
-          name: person.name,
-          species: person.species,
-        });
-        if(response){
-          if (response.status === 200) {
-            await this.requestPersons();
+      try {
+        if (person.name || person.species) {
+          const response = await putPerson(person.id, {
+            name: person.name,
+            species: person.species,
+          })
+          if (response) {
+            if (response.status === 200) {
+              await this.requestPersons();
+            }
+          }
+        }  
+      } 
+      catch (error) {
+        if (error.status === 400) {
+          this.requestPersons();
         }
-        }
-      }
-      catch(error){
-        
       }
     },
     async addPerson(person) {
-      try{
-        const response = await postPerson(person);
-        if (response.status === 201) {
-          await this.requestPersons();
-        }else if(response.status === 404){
-          console.log(response);
+      try {
+        if (person.name && person.species) {
+          const response = await postPerson(person);
+          if (response.status === 201) {
+            await this.requestPersons();
+          }
         }
-      }
-      catch(e){
-
+      } 
+      catch (error) {
+        if (error.status === 400) {
+          this.persons = [];
+        }
       }
     },
     async removePerson(personId) {
-      try{
+      try {
         const response = await deletePerson(personId);
-        if (response.status === 204) {
+          if(response){
+            if (response.status === 204) {
+              await this.requestPersons();
+            }
+          }
+      } 
+      catch (error) {
+        if(error.status === 400){
           await this.requestPersons();
         }
-      }
-      catch(e){
-
       }
     },
     async deleteAll() {
-      try{
+      try {
         const response = await deleteAll();
-        if (response.status === 204) {
+        if(response){
+          if (response.status === 204) {
+            await this.requestPersons();
+          }
+        }
+      } 
+      catch (error) {
+        if(error.status === 400){
           await this.requestPersons();
         }
-      }
-      catch(e){
-
       }
     },
   },
