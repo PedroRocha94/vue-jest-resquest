@@ -22,12 +22,17 @@ describe('MyComponent.vue', () => {
       }
     }
     getPersons.mockResolvedValueOnce(mockResponseGetAllPersons);
-
-    const wrapper = shallowMount(MyComponent);
+    const wrapper = shallowMount(MyComponent,{
+      data(){
+        return{
+          persons: []
+        }
+      }
+    });
+    expect(wrapper.vm.persons).toHaveLength(0);
     await wrapper.get('[data-test="requestPersons"]').trigger('click');
     await flushPromises();
-    const result = wrapper.findAll('[data-test="person"]');
-    expect(result).toHaveLength(2);
+    expect(wrapper.vm.persons).toHaveLength(2);
   })
 
   test('Checking person in position 2', async () => {
@@ -273,25 +278,8 @@ describe('MyComponent.vue', () => {
         error: 'Não foi possível remover esta pessoa.'
       }
     }
-    const mockResponseGetPersons = {
-      status: 200,
-      data: {
-        results: [
-          {
-            id: 1,
-            name: 'Pedro',
-            species: 'Humano'
-          },
-          {
-            id: 2,
-            name: 'Cátia',
-            species: 'Humano'
-          }
-        ]
-      }
-    }
+    
     deletePerson.mockRejectedValueOnce(mockError);
-    getPersons.mockResolvedValueOnce(mockResponseGetPersons);
 
     const wrapper = shallowMount(MyComponent, {
       data(){
@@ -344,7 +332,6 @@ describe('MyComponent.vue', () => {
       }
     }
     putPerson.mockRejectedValueOnce(mockError);
-    getPersons.mockResolvedValueOnce(mockResponseGetPersons);
 
     const wrapper = shallowMount(MyComponent, {
       data() {
@@ -362,7 +349,7 @@ describe('MyComponent.vue', () => {
     expect(wrapper.vm.persons[0].name).toEqual('Cátia');
     expect(wrapper.vm.persons[0].species).toEqual('Alien');
     const person = wrapper.findAll('.iten-person').at(0);
-    wrapper.get('[data-test="name-person"]').setValue();
+    wrapper.get('[data-test="name-person"]').setValue(mockPerson.name);
     wrapper.get('[data-test="specie-person"]').setValue(mockPerson.species);
     await person.get('[data-test="edit-person"]').trigger('click');
     await flushPromises();

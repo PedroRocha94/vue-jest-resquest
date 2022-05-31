@@ -124,7 +124,7 @@ export default {
       } 
       catch (error) {
         if (error.status === 400) {
-          this.requestPersons();
+          this.persons = this.persons;
         }
       }
     },
@@ -154,7 +154,7 @@ export default {
       } 
       catch (error) {
         if(error.status === 400){
-          await this.requestPersons();
+          this.persons = this.persons;
         }
       }
     },
