@@ -214,7 +214,7 @@ describe('MyComponent.vue', () => {
 
   })
 
-  test('Get requests catch response', async () => {
+  test('Error receiving data by get request', async () => {
     const mockError = {
       status: 404,
       data: {

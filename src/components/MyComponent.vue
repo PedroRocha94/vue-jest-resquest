@@ -96,11 +96,7 @@ export default {
     async requestPersons() {
       try {
         const response = await getPersons();
-        if (response) {
-          if (response.status === 200) {
-            this.persons = response.data.results;
-          }
-        }
+        this.persons = response.data.results;
       } 
       catch (error) {
         if (error.status === 404) {
